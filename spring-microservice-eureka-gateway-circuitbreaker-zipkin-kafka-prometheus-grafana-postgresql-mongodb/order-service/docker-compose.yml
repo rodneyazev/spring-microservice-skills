@@ -1,0 +1,15 @@
+---
+version: '3.9'
+services:
+  order-service:
+    image: order-service:latest
+    container_name: order-service
+    hostname: order-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - my-network
+networks:
+  my-network:
+      name: my-network
+      external: true

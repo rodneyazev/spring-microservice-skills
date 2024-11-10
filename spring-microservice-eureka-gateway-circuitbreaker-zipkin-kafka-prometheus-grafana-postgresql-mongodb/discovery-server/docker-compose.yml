@@ -1,0 +1,17 @@
+---
+version: '3.9'
+services:
+  discovery-server:
+    image: discovery-server:latest
+    container_name: discovery-server
+    hostname: discovery-server
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8761:8761"
+    networks:
+      - my-network
+networks:
+  my-network:
+      name: my-network
+      external: true

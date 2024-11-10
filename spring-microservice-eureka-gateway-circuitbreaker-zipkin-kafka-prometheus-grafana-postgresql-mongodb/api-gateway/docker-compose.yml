@@ -1,0 +1,17 @@
+---
+version: '3.9'
+services:
+  api-gateway:
+    image: api-gateway:latest
+    container_name: api-gateway
+    hostname: api-gateway
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8080:8080"
+    networks:
+      - my-network
+networks:
+  my-network:
+      name: my-network
+      external: true

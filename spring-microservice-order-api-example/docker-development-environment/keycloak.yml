@@ -1,0 +1,27 @@
+version: "3.9"
+services:
+  keycloak:
+    image:  quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    hostname: keycloak
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_PORT: 5432
+      DB_DATABASE: ${DATABASE}
+      DB_USER: ${USERNAME}
+      DB_SCHEMA: public
+      DB_PASSWORD: ${PASSWORD}
+      KEYCLOAK_USER: keycloak
+      KEYCLOAK_PASSWORD: keycloak
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8090:8080"
+    networks:
+      - my-network
+    command: start-dev
+networks:
+  my-network:
+      name: my-network
+      external: true

@@ -1,0 +1,39 @@
+server:
+  port: 8080
+  servlet:
+    session:
+      timeout: 30s
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka:eureka@localhost:8761/eureka
+
+springdoc:
+  swagger-ui:
+    disable-swagger-default-url: true
+    path: /swagger
+
+spring:
+  application:
+    name: login-api
+  jpa:
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    hibernate:
+      ddl-auto: update
+    generate-ddl: true
+    show-sql: false
+    properties:
+      hibernate:
+        temp:
+          '[use_jdbc_metadata_defaults]': false
+  datasource:
+    url: jdbc:sqlite:users.db
+#
+# Uncomment after the first run. A second run is needed to populate database.
+# Ignore the error messages that will occur after the second run.
+#
+#  sql:
+#    init:
+#      data-locations: classpath:sql/data/insert.sql
+#      mode: always

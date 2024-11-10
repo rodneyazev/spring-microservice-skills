@@ -1,0 +1,25 @@
+version: '3.9'
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: "jenkins"
+    hostname: "jenkins"
+    privileged: true
+    user: root
+    ports:
+      - "9080:8080"
+      # Exposing 8085 port for Spring application e.g.
+      - "8085:8085"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/local/bin/docker:/usr/local/bin/docker
+    restart: unless-stopped
+    networks:
+      - my-network
+networks:
+  my-network:
+      name: my-network
+      external: true
+volumes:
+  jenkins_home:

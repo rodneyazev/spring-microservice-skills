@@ -1,0 +1,32 @@
+# spring-cloud-starter-gateway - Route connections 
+#
+########################################
+# Main Source: http "httpbin.org/get?Hello=World"
+#
+########################################
+#
+# Implementation - Example 1 - http http://localhost:8080/get?Hello=World
+#
+#spring:
+#  cloud:
+#    gateway:
+#        routes:
+#          - id: hello-world
+#            uri: https://httpbin.org/
+#            predicates:
+#              - Path=/get
+########################################
+#
+# Implementation - Example 2 - With filter - http http://localhost:8080/hello?Hello=World
+#
+spring:
+  cloud:
+    gateway:
+        routes:
+          - id: hello-world
+            uri: https://httpbin.org/
+            predicates:
+              - Path=/hello
+            # Filter
+            filters:
+              - SetPath=/get

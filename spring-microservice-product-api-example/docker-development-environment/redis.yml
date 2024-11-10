@@ -1,0 +1,19 @@
+version: '3.9'
+services:
+  redis:
+    image: redis:bullseye
+    container_name: "redis"
+    hostname: "redis"
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_cache:/data
+    networks:
+      - my-network
+networks:
+  my-network:
+      name: my-network
+      external: true
+volumes:
+  redis_cache:
+    driver: local

@@ -1,0 +1,57 @@
+version: "3.9"
+services:
+
+# POSTGRES
+  postgres:
+    image: postgres
+    container_name: "postgres"
+    hostname: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DATABASE}
+      PGDATA: /var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdb:/var/lib/postgresql/data
+      - ./files/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
+    networks:
+      - my-network
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: "pgadmin"
+    hostname: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    ports:
+      - "5433:80"
+    depends_on:
+      - postgres
+    networks:
+      - my-network
+
+# ZIPKIN
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: "zipkin"
+    hostname: "zipkin"
+    environment:
+      - STORAGE_TYPE=mem
+    ports:
+      - "9411:9411"
+    networks:
+      - my-network
+
+# NETWORK
+networks:
+  my-network:
+      name: my-network
+      external: true
+
+# VOLUMES
+volumes:
+  mongodb:
+  pgdb:
+  grafana:

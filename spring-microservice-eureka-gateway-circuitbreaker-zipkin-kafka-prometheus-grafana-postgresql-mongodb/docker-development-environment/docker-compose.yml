@@ -1,0 +1,164 @@
+version: "3.9"
+services:
+
+# MONGODB
+  mongo:
+    image: mongo
+    container_name: "mongodb"
+    hostname: "mongodb"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb:/data/db
+    networks:
+      - my-network
+
+# POSTGRES
+  postgres:
+    image: postgres
+    container_name: "postgres"
+    hostname: postgres
+    environment:
+      POSTGRES_USER: ${USERNAME}
+      POSTGRES_PASSWORD: ${PASSWORD}
+      POSTGRES_DB: ${DATABASE}
+      PGDATA: /var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdb:/var/lib/postgresql/data
+      - ./files/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
+    networks:
+      - my-network
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: "pgadmin"
+    hostname: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    ports:
+      - "5433:80"
+    depends_on:
+      - postgres
+    networks:
+      - my-network
+
+# KAFKA
+  kafka:
+    image: obsidiandynamics/kafka
+    container_name: "kafka"
+    hostname: "kafka"
+    ports:
+      - "2181:2181"
+      - "9092:9092"
+    environment:
+      KAFKA_LISTENERS: "INTERNAL://:29092,EXTERNAL://:9092"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka:29092,EXTERNAL://localhost:9092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
+      KAFKA_ZOOKEEPER_SESSION_TIMEOUT: "6000"
+      KAFKA_RESTART_ATTEMPTS: "10"
+      KAFKA_RESTART_DELAY: "5"
+      ZOOKEEPER_AUTOPURGE_PURGE_INTERVAL: "0"
+    networks:
+      - my-network
+
+# KAFDROP
+  kafdrop:
+    image: obsidiandynamics/kafdrop:3.31.0
+    container_name: "kafdrop"
+    hostname: "kafdrop"
+    ports:
+      - "9091:9000"
+    environment:
+      KAFKA_BROKERCONNECT: "kafka:29092"
+      JVM_OPTS: "-Xms32M -Xmx64M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication"
+    networks:
+      - my-network
+    depends_on:
+      - kafka
+
+# KEYCLOAK
+  keycloak:
+    image:  quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    hostname: keycloak
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_PORT: 5432
+      DB_DATABASE: ${DATABASE}
+      DB_USER: ${USERNAME}
+      DB_SCHEMA: public
+      DB_PASSWORD: ${PASSWORD}
+      KEYCLOAK_USER: keycloak
+      KEYCLOAK_PASSWORD: keycloak
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8090:8080"
+    networks:
+      - my-network
+    command: start-dev
+
+# PROMETHEUS
+  prometheus:
+    image: bitnami/prometheus:latest
+    container_name: prometheus
+    hostname: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - my-network
+
+# GRAFANA
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    hostname: grafana
+    ports:
+      - "3000:3000"
+    links:
+      - prometheus:prometheus
+    volumes:
+      - grafana:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=grafana
+      - GF_SECURITY_ADMIN_PASSWORD=grafana
+      - GF_SERVER_DOMAIN=localhost
+      # Enabled for logging
+      - GF_LOG_MODE=console file
+      - GF_LOG_FILTERS=alerting.notifier.slack:debug alertmanager:debug ngalert:debug
+    networks:
+      - my-network
+
+# ZIPKIN
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: "zipkin"
+    hostname: "zipkin"
+    environment:
+      - STORAGE_TYPE=mem
+    ports:
+      - "9411:9411"
+    networks:
+      - my-network
+
+# NETWORK
+networks:
+  my-network:
+      name: my-network
+      external: true
+
+# VOLUMES
+volumes:
+  mongodb:
+  pgdb:
+  grafana:

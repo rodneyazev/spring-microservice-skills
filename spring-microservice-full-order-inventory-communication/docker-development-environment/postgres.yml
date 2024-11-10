@@ -1,0 +1,37 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres
+    container_name: "postgres"
+    hostname: postgres
+    environment:
+      POSTGRES_USER: ${USERNAME}
+      POSTGRES_PASSWORD: ${PASSWORD}
+      POSTGRES_DB: ${DATABASE}
+      PGDATA: /var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdb:/var/lib/postgresql/data
+      - ./files/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
+    networks:
+      - my-network
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: "pgadmin"
+    hostname: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    ports:
+      - "5433:80"
+    depends_on:
+      - postgres
+    networks:
+      - my-network
+networks:
+  my-network:
+      name: my-network
+      external: true
+volumes:
+  pgdb:

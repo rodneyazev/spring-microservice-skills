@@ -1,0 +1,27 @@
+server:
+  port: 8800
+  
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+      
+spring:
+  application:
+    name: students
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/students
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0    

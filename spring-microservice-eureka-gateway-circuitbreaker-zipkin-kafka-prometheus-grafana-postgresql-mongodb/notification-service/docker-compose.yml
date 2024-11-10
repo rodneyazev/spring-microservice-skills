@@ -1,0 +1,15 @@
+---
+version: '3.9'
+services:
+  notification-service:
+    image: notification-service:latest
+    container_name: notification-service
+    hostname: notification-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - my-network
+networks:
+  my-network:
+      name: my-network
+      external: true
